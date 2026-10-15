@@ -7,6 +7,12 @@ interface ShiftResults {
   balance: number;
 }
 
+interface ChartRow {
+  label: string;
+  quantity: number;
+  color: string;
+}
+
 const canvas = document.querySelector<HTMLCanvasElement>("#allocation-canvas")!;
 const ctx = canvas.getContext("2d")!;
 const readout = document.querySelector<HTMLParagraphElement>(
@@ -64,13 +70,31 @@ function updateGraph(results: ShiftResults) {
   ctx.fillStyle = "#233e43";
   ctx.font = "14px system-ui";
   ctx.fillText(`Producers: ${results.numOfProducers} / 6`, 18, 76);
-  ctx.fillText(`Production: ${results.productionLevel}`, 18, 102);
-  ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, results.productionLevel * 14, 20);
-  ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${results.consumption}`, 18, 154);
-  ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, results.consumption * 14, 20);
+
+  const rows: ChartRow[] = [
+    {
+      label: "Production",
+      quantity: results.productionLevel,
+      color: "#27766b",
+    },
+    {
+      label: "Consumption",
+      quantity: results.consumption,
+      color: "#a44d23",
+    },
+  ];
+
+  rows.forEach((row, index) => {
+    const labelY = 102 + index * 52;
+    const barY = labelY + 8;
+
+    ctx.fillStyle = "#233e43";
+    ctx.fillText(`${row.label}: ${row.quantity}`, 18, labelY);
+
+    ctx.fillStyle = row.color;
+    ctx.fillRect(18, barY, row.quantity * 14, 20);
+  });
+
   readout.textContent =
     `Assigned: ${numOfProducers}/6 · Production: ${results.productionLevel} · Consumption: ${results.consumption} · Balance: ${
       results.balance > 0 ? "+" : ""
