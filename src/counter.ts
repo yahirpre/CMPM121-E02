@@ -19,6 +19,8 @@ let count = 0;
 let panel: HTMLParagraphElement | null = null;
 let panelUpdates = 0;
 
+const shieldEvents = new EventTarget();
+
 function prepareShield(): Shield {
   const capacity = 10;
 
@@ -63,9 +65,17 @@ function setCount(next: number) {
 
   const shield = prepareShield();
 
-  drawMeter(shield);
+  shieldEvents.dispatchEvent(
+    new CustomEvent("shield-changed", { detail: shield }),
+  );
+
   if (panel) updateStats(shield);
 }
+
+shieldEvents.addEventListener("shield-changed", (event) => {
+  const shield = (event as CustomEvent<Shield>).detail;
+  drawMeter(shield);
+});
 
 document.querySelector<HTMLButtonElement>("#counter-less")!.onclick = () => {
   setCount(count - 1);
