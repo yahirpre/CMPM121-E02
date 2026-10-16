@@ -4,12 +4,19 @@ interface Command {
   execute(): void;
 }
 
+interface Direction {
+  heading: string;
+  dx: number;
+  dy: number;
+}
+
 class ForwardCommand implements Command {
   execute(): void {
-    if (direction === 0) y = Math.max(0, y - 1);
-    if (direction === 1) x = Math.min(4, x + 1);
-    if (direction === 2) y = Math.min(4, y + 1);
-    if (direction === 3) x = Math.max(0, x - 1);
+    const currentDirection: Direction = directions[direction];
+
+    x = Math.max(0, Math.min(4, x + currentDirection.dx));
+    y = Math.max(0, Math.min(4, y + currentDirection.dy));
+
     drawRover();
   }
 }
@@ -24,7 +31,14 @@ class TurnRightCommand implements Command {
 const canvas = document.querySelector<HTMLCanvasElement>("#rover-canvas")!;
 const ctx = canvas.getContext("2d")!;
 const readout = document.querySelector<HTMLParagraphElement>("#rover-readout")!;
-const headings = ["North", "East", "South", "West"];
+
+const directions: Direction[] = [
+  { heading: "North", dx: 0, dy: -1 },
+  { heading: "East", dx: 1, dy: 0 },
+  { heading: "South", dx: 0, dy: 1 },
+  { heading: "West", dx: -1, dy: 0 },
+];
+
 let x = 2;
 let y = 2;
 let direction = 0;
@@ -49,7 +63,7 @@ function drawRover() {
   ctx.fill();
   ctx.restore();
   readout.textContent = `Position: (${x}, ${y}) · Facing: ${
-    headings[direction]
+    directions[direction].heading
   }`;
 }
 
